@@ -6,7 +6,7 @@ import {
   loginRequestSchema,
   loginUserSchema,
 } from "@/lib/yakapSchemas";
-import { signAuthToken } from "@/lib/serverAuth";
+// import { signAuthToken } from "@/lib/serverAuth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,20 +40,20 @@ export async function POST(req: NextRequest) {
       role: user.role,
     });
 
-    const token = signAuthToken(publicUser);
+    // const token = signAuthToken(publicUser);
 
     const res = NextResponse.json(
       { ok: true, user: publicUser },
       { status: 200 },
     );
 
-    res.cookies.set("yakap_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24, // 1 day
-    });
+    // res.cookies.set("yakap_token", token, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "lax",
+    //   path: "/",
+    //   maxAge: 60 * 60 * 24, // 1 day
+    // });
 
     return res;
   } catch (err: any) {
