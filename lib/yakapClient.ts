@@ -82,24 +82,22 @@ export async function getBrgies(): Promise<BrgyRow[]> {
 // ─────────────────────────────
 
 // GET /api/yakap – returns TODAY’s yakaps for current user (by cookie)
-export async function getYakaps(): Promise<YakapRow[]> {
-  const res = await fetch("/api/yakap", {
-    method: "GET",
-    credentials: "include",
-    cache: "no-store",
-  });
-
-  const json = await res.json().catch(() => ({}));
+export async function getYakaps() {
+  const res = await fetch("/api/yakap");
 
   if (!res.ok) {
-    const msg =
-      (json && json.error) || `Failed to load Yakap list (${res.status})`;
-    throw new Error(msg);
+    const json = await res.json().catch(() => null);
+    throw new Error(
+      (json && json.error) || `Failed to load Yakap list (${res.status})`,
+    );
   }
 
-  const parsed = yakapListResponseSchema.parse(json);
+  const parsed = yakapListResponseSchema.parse(await res.json());
+
+  // ✅ RETURN ONLY THE ARRAY
   return parsed.data;
 }
+
 
 export async function createYakap(
   input: CreateYakapRequest,

@@ -91,6 +91,7 @@ export const createYakapRequestSchema = z.object({
   fullname: z.string().min(1, "Fullname is required"),
   address: z.string().optional().nullable(),
   brgy_id: z.string().min(1, "Barangay is required"),
+  user_id: z.string().min(1, "User is required"),
 });
 
 // Response for POST /api/yakap (success only)

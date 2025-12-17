@@ -8,51 +8,13 @@ import {
   yakapListResponseSchema,
 } from "@/lib/yakapSchemas";
 
-function todayRange() {
-  const now = new Date();
-  const start = new Date(now);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(now);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
-}
-
-export async function GET(req: NextRequest) {
+/* ============================
+   GET: Public Yakap List
+============================ */
+export async function GET() {
   try {
-    const sessionUserId = req.cookies.get("yakap_session")?.value;
-
-    if (!sessionUserId) {
-      return NextResponse.json(
-        { ok: false, error: "unauthorized" },
-        { status: 401 },
-      );
-    }
-
-    const { start, end } = todayRange();
-
     const rows = await prisma.yakap.findMany({
-      where: {
-        user_id: sessionUserId,
-        createdAt: {
-          gte: start,
-          lte: end,
-        },
-      },
       orderBy: { createdAt: "desc" },
-      include: {
-        brgy: {
-          include: {
-            city: {
-              include: {
-                province: true,
-              },
-            },
-          },
-        },
-        user: true,
-      },
     });
 
     const safe = rows.map((y) =>
@@ -64,32 +26,6 @@ export async function GET(req: NextRequest) {
         user_id: y.user_id,
         createdAt: y.createdAt.toISOString(),
         updatedAt: y.updatedAt.toISOString(),
-        brgy: y.brgy
-          ? {
-              brgy_id: y.brgy.brgy_id,
-              brgy_name: y.brgy.brgy_name,
-              city: y.brgy.city
-                ? {
-                    city_id: y.brgy.city.city_id,
-                    city_name: y.brgy.city.city_name,
-                    province: y.brgy.city.province
-                      ? {
-                          prov_id: y.brgy.city.province.prov_id,
-                          prov_name: y.brgy.city.province.prov_name,
-                        }
-                      : null,
-                  }
-                : null,
-            }
-          : null,
-        user: y.user
-          ? {
-              user_id: y.user.user_id,
-              username: y.user.username,
-              name: y.user.name,
-              role: y.user.role,
-            }
-          : null,
       }),
     );
 
@@ -108,19 +44,14 @@ export async function GET(req: NextRequest) {
   }
 }
 
+/* ============================
+   POST: Public Create Yakap
+============================ */
 export async function POST(req: NextRequest) {
   try {
-    const sessionUserId = req.cookies.get("yakap_session")?.value;
-
-    if (!sessionUserId) {
-      return NextResponse.json(
-        { ok: false, error: "unauthorized" },
-        { status: 401 },
-      );
-    }
-
     const json = await req.json().catch(() => ({}));
-    // NOTE: createYakapRequestSchema no longer has user_id – derived here
+
+    // user_id is REQUIRED and MANUAL now
     const parsed = createYakapRequestSchema.parse(json);
 
     const created = await prisma.yakap.create({
@@ -128,7 +59,7 @@ export async function POST(req: NextRequest) {
         fullname: parsed.fullname,
         address: parsed.address ?? null,
         brgy_id: parsed.brgy_id,
-        user_id: sessionUserId,
+        user_id: parsed.user_id,
       },
     });
 

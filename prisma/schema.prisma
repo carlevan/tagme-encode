@@ -22,8 +22,8 @@ model Yakap {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  brgy Brgy @relation(fields: [brgy_id], references: [brgy_id])
-  user User @relation(fields: [user_id], references: [user_id])
+  // brgy Brgy @relation(fields: [brgy_id], references: [brgy_id])
+  // user User @relation(fields: [user_id], references: [user_id])
 
   @@index([fullname])
   @@index([brgy_id])
@@ -37,7 +37,7 @@ model Brgy {
   updatedAt DateTime @updatedAt
 
   city   City    @relation(fields: [city_id], references: [city_id])
-  yakaps Yakap[]
+  // yakaps Yakap[]
 }
 
 model City {
@@ -68,5 +68,5 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  yakaps Yakap[]
+  // yakaps Yakap[]
 }
