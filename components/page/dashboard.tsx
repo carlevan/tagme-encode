@@ -82,6 +82,11 @@ type BrgyCountRow = {
   total: number;
 };
 
+type UserCountRow = {
+  user: string;
+  total: number;
+};
+
 const YakapDashboard: React.FC = () => {
   const [yakaps, setYakaps] = useState<YakapRow[]>([]);
   const [loading, setLoading] = useState(false);
@@ -110,7 +115,6 @@ const YakapDashboard: React.FC = () => {
      BUILD BRGY COUNTS (FIXED ORDER)
   -------------------------------- */
   const brgyCounts = useMemo<BrgyCountRow[]>(() => {
-    // Count today's yakaps
     const counts = yakaps
       .filter((y) => isToday(y.createdAt))
       .reduce<Record<string, number>>((acc, y) => {
@@ -118,19 +122,31 @@ const YakapDashboard: React.FC = () => {
         return acc;
       }, {});
 
-    // Build rows strictly following BRGIES order
     let rows = BRGIES.map((brgy) => ({
       brgy,
       total: counts[brgy] ?? 0,
     }));
 
-    // Optional filter (keeps order)
     if (selectedBrgy) {
       rows = rows.filter((r) => r.brgy === selectedBrgy);
     }
 
     return rows;
   }, [yakaps, selectedBrgy]);
+
+  /* -----------------------------
+     BUILD USER COUNTS
+  -------------------------------- */
+  const userCounts = useMemo<UserCountRow[]>(() => {
+    const counts = yakaps
+      .filter((y) => isToday(y.createdAt))
+      .reduce<Record<string, number>>((acc, y) => {
+        acc[y.user_id] = (acc[y.user_id] ?? 0) + 1;
+        return acc;
+      }, {});
+
+    return Object.entries(counts).map(([user, total]) => ({ user, total }));
+  }, [yakaps]);
 
   /* -----------------------------
      OVERALL TOTAL
@@ -140,7 +156,7 @@ const YakapDashboard: React.FC = () => {
   }, [brgyCounts]);
 
   /* -----------------------------
-     CSV EXPORT (ORDER PRESERVED)
+     CSV EXPORT (BRGY ONLY)
   -------------------------------- */
   const exportCSV = () => {
     const header = ["Barangay", "Total"];
@@ -169,7 +185,7 @@ const YakapDashboard: React.FC = () => {
         <header>
           <h1 className="text-3xl font-semibold">Yakap Dashboard</h1>
           <p className="text-sm text-muted-foreground">
-            Today&apos;s barangay summary
+            Today&apos;s summary
           </p>
         </header>
 
@@ -186,13 +202,11 @@ const YakapDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* FILTER + TABLE */}
+        {/* BRGY TABLE */}
         <Card>
           <CardHeader>
             <CardTitle>Barangay Breakdown</CardTitle>
-            <CardDescription>
-              Ordered from Barangay 1 to Talao-Talao
-            </CardDescription>
+            <CardDescription>Ordered from Barangay 1 to Talao-Talao</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col md:flex-row gap-4 items-end">
@@ -229,9 +243,37 @@ const YakapDashboard: React.FC = () => {
                   {brgyCounts.map((r) => (
                     <TableRow key={r.brgy}>
                       <TableCell>{r.brgy}</TableCell>
-                      <TableCell className="text-right font-medium">
-                        {r.total}
-                      </TableCell>
+                      <TableCell className="text-right font-medium">{r.total}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        {/* USER TABLE (NOT EXPORTED) */}
+        <Card>
+          <CardHeader>
+            <CardTitle>User Breakdown</CardTitle>
+            <CardDescription>
+              Counts of entries per user (not included in CSV)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-80 border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {userCounts.map((u) => (
+                    <TableRow key={u.user}>
+                      <TableCell>{u.user}</TableCell>
+                      <TableCell className="text-right font-medium">{u.total}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

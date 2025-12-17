@@ -131,15 +131,21 @@ const YakapEncode: React.FC = () => {
   }, [yakaps, form.user_id]);
 
   const handleChange =
-    (field: keyof CreateYakapRequest) =>
-    (
-      e: React.ChangeEvent<
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      >,
-    ) => {
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
-    };
+  (field: keyof CreateYakapRequest) =>
+  (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    let value = e.target.value;
 
+    // Automatically uppercase fullname and user_id
+    if (field === "fullname" || field === "user_id") {
+      value = value.toUpperCase();
+    }
+
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
   /* -----------------------------
      SUBMIT
   -------------------------------- */
