@@ -183,7 +183,6 @@ export type BrgyWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Brgy"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Brgy"> | Date | string
   city?: Prisma.XOR<Prisma.CityScalarRelationFilter, Prisma.CityWhereInput>
-  yakaps?: Prisma.YakapListRelationFilter
 }
 
 export type BrgyOrderByWithRelationInput = {
@@ -193,7 +192,6 @@ export type BrgyOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   city?: Prisma.CityOrderByWithRelationInput
-  yakaps?: Prisma.YakapOrderByRelationAggregateInput
 }
 
 export type BrgyWhereUniqueInput = Prisma.AtLeast<{
@@ -206,7 +204,6 @@ export type BrgyWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Brgy"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Brgy"> | Date | string
   city?: Prisma.XOR<Prisma.CityScalarRelationFilter, Prisma.CityWhereInput>
-  yakaps?: Prisma.YakapListRelationFilter
 }, "brgy_id">
 
 export type BrgyOrderByWithAggregationInput = {
@@ -237,7 +234,6 @@ export type BrgyCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   city: Prisma.CityCreateNestedOneWithoutBrgiesInput
-  yakaps?: Prisma.YakapCreateNestedManyWithoutBrgyInput
 }
 
 export type BrgyUncheckedCreateInput = {
@@ -246,7 +242,6 @@ export type BrgyUncheckedCreateInput = {
   brgy_name: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  yakaps?: Prisma.YakapUncheckedCreateNestedManyWithoutBrgyInput
 }
 
 export type BrgyUpdateInput = {
@@ -255,7 +250,6 @@ export type BrgyUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   city?: Prisma.CityUpdateOneRequiredWithoutBrgiesNestedInput
-  yakaps?: Prisma.YakapUpdateManyWithoutBrgyNestedInput
 }
 
 export type BrgyUncheckedUpdateInput = {
@@ -264,7 +258,6 @@ export type BrgyUncheckedUpdateInput = {
   brgy_name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  yakaps?: Prisma.YakapUncheckedUpdateManyWithoutBrgyNestedInput
 }
 
 export type BrgyCreateManyInput = {
@@ -288,11 +281,6 @@ export type BrgyUncheckedUpdateManyInput = {
   brgy_name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type BrgyScalarRelationFilter = {
-  is?: Prisma.BrgyWhereInput
-  isNot?: Prisma.BrgyWhereInput
 }
 
 export type BrgyCountOrderByAggregateInput = {
@@ -327,20 +315,6 @@ export type BrgyListRelationFilter = {
 
 export type BrgyOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type BrgyCreateNestedOneWithoutYakapsInput = {
-  create?: Prisma.XOR<Prisma.BrgyCreateWithoutYakapsInput, Prisma.BrgyUncheckedCreateWithoutYakapsInput>
-  connectOrCreate?: Prisma.BrgyCreateOrConnectWithoutYakapsInput
-  connect?: Prisma.BrgyWhereUniqueInput
-}
-
-export type BrgyUpdateOneRequiredWithoutYakapsNestedInput = {
-  create?: Prisma.XOR<Prisma.BrgyCreateWithoutYakapsInput, Prisma.BrgyUncheckedCreateWithoutYakapsInput>
-  connectOrCreate?: Prisma.BrgyCreateOrConnectWithoutYakapsInput
-  upsert?: Prisma.BrgyUpsertWithoutYakapsInput
-  connect?: Prisma.BrgyWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.BrgyUpdateToOneWithWhereWithoutYakapsInput, Prisma.BrgyUpdateWithoutYakapsInput>, Prisma.BrgyUncheckedUpdateWithoutYakapsInput>
 }
 
 export type BrgyCreateNestedManyWithoutCityInput = {
@@ -385,60 +359,11 @@ export type BrgyUncheckedUpdateManyWithoutCityNestedInput = {
   deleteMany?: Prisma.BrgyScalarWhereInput | Prisma.BrgyScalarWhereInput[]
 }
 
-export type BrgyCreateWithoutYakapsInput = {
-  brgy_id?: string
-  brgy_name: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  city: Prisma.CityCreateNestedOneWithoutBrgiesInput
-}
-
-export type BrgyUncheckedCreateWithoutYakapsInput = {
-  brgy_id?: string
-  city_id: string
-  brgy_name: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type BrgyCreateOrConnectWithoutYakapsInput = {
-  where: Prisma.BrgyWhereUniqueInput
-  create: Prisma.XOR<Prisma.BrgyCreateWithoutYakapsInput, Prisma.BrgyUncheckedCreateWithoutYakapsInput>
-}
-
-export type BrgyUpsertWithoutYakapsInput = {
-  update: Prisma.XOR<Prisma.BrgyUpdateWithoutYakapsInput, Prisma.BrgyUncheckedUpdateWithoutYakapsInput>
-  create: Prisma.XOR<Prisma.BrgyCreateWithoutYakapsInput, Prisma.BrgyUncheckedCreateWithoutYakapsInput>
-  where?: Prisma.BrgyWhereInput
-}
-
-export type BrgyUpdateToOneWithWhereWithoutYakapsInput = {
-  where?: Prisma.BrgyWhereInput
-  data: Prisma.XOR<Prisma.BrgyUpdateWithoutYakapsInput, Prisma.BrgyUncheckedUpdateWithoutYakapsInput>
-}
-
-export type BrgyUpdateWithoutYakapsInput = {
-  brgy_id?: Prisma.StringFieldUpdateOperationsInput | string
-  brgy_name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  city?: Prisma.CityUpdateOneRequiredWithoutBrgiesNestedInput
-}
-
-export type BrgyUncheckedUpdateWithoutYakapsInput = {
-  brgy_id?: Prisma.StringFieldUpdateOperationsInput | string
-  city_id?: Prisma.StringFieldUpdateOperationsInput | string
-  brgy_name?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
 export type BrgyCreateWithoutCityInput = {
   brgy_id?: string
   brgy_name: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  yakaps?: Prisma.YakapCreateNestedManyWithoutBrgyInput
 }
 
 export type BrgyUncheckedCreateWithoutCityInput = {
@@ -446,7 +371,6 @@ export type BrgyUncheckedCreateWithoutCityInput = {
   brgy_name: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  yakaps?: Prisma.YakapUncheckedCreateNestedManyWithoutBrgyInput
 }
 
 export type BrgyCreateOrConnectWithoutCityInput = {
@@ -498,7 +422,6 @@ export type BrgyUpdateWithoutCityInput = {
   brgy_name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  yakaps?: Prisma.YakapUpdateManyWithoutBrgyNestedInput
 }
 
 export type BrgyUncheckedUpdateWithoutCityInput = {
@@ -506,7 +429,6 @@ export type BrgyUncheckedUpdateWithoutCityInput = {
   brgy_name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  yakaps?: Prisma.YakapUncheckedUpdateManyWithoutBrgyNestedInput
 }
 
 export type BrgyUncheckedUpdateManyWithoutCityInput = {
@@ -517,35 +439,6 @@ export type BrgyUncheckedUpdateManyWithoutCityInput = {
 }
 
 
-/**
- * Count Type BrgyCountOutputType
- */
-
-export type BrgyCountOutputType = {
-  yakaps: number
-}
-
-export type BrgyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  yakaps?: boolean | BrgyCountOutputTypeCountYakapsArgs
-}
-
-/**
- * BrgyCountOutputType without action
- */
-export type BrgyCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the BrgyCountOutputType
-   */
-  select?: Prisma.BrgyCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * BrgyCountOutputType without action
- */
-export type BrgyCountOutputTypeCountYakapsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.YakapWhereInput
-}
-
 
 export type BrgySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   brgy_id?: boolean
@@ -554,8 +447,6 @@ export type BrgySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   city?: boolean | Prisma.CityDefaultArgs<ExtArgs>
-  yakaps?: boolean | Prisma.Brgy$yakapsArgs<ExtArgs>
-  _count?: boolean | Prisma.BrgyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brgy"]>
 
 export type BrgySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -587,8 +478,6 @@ export type BrgySelectScalar = {
 export type BrgyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"brgy_id" | "city_id" | "brgy_name" | "createdAt" | "updatedAt", ExtArgs["result"]["brgy"]>
 export type BrgyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   city?: boolean | Prisma.CityDefaultArgs<ExtArgs>
-  yakaps?: boolean | Prisma.Brgy$yakapsArgs<ExtArgs>
-  _count?: boolean | Prisma.BrgyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BrgyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   city?: boolean | Prisma.CityDefaultArgs<ExtArgs>
@@ -601,7 +490,6 @@ export type $BrgyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "Brgy"
   objects: {
     city: Prisma.$CityPayload<ExtArgs>
-    yakaps: Prisma.$YakapPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     brgy_id: string
@@ -1004,7 +892,6 @@ readonly fields: BrgyFieldRefs;
 export interface Prisma__BrgyClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   city<T extends Prisma.CityDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CityDefaultArgs<ExtArgs>>): Prisma.Prisma__CityClient<runtime.Types.Result.GetResult<Prisma.$CityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  yakaps<T extends Prisma.Brgy$yakapsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Brgy$yakapsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$YakapPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1432,30 +1319,6 @@ export type BrgyDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Brgies to delete.
    */
   limit?: number
-}
-
-/**
- * Brgy.yakaps
- */
-export type Brgy$yakapsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Yakap
-   */
-  select?: Prisma.YakapSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Yakap
-   */
-  omit?: Prisma.YakapOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapInclude<ExtArgs> | null
-  where?: Prisma.YakapWhereInput
-  orderBy?: Prisma.YakapOrderByWithRelationInput | Prisma.YakapOrderByWithRelationInput[]
-  cursor?: Prisma.YakapWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.YakapScalarFieldEnum | Prisma.YakapScalarFieldEnum[]
 }
 
 /**

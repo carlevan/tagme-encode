@@ -115,10 +115,13 @@ export async function createYakap(
   const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    const msg =
-      (json && json.error) || `Failed to create Yakap (${res.status})`;
-    throw new Error(msg);
-  }
+  const msg =
+    json?.message ||
+    json?.error ||
+    `Failed to create Yakap (${res.status})`;
+
+  throw new Error(msg);
+}
 
   const parsed = createYakapResponseSchema.parse(json);
 

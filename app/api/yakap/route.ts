@@ -11,9 +11,25 @@ import {
 /* ============================
    GET: Public Yakap List
 ============================ */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const url = new URL(req.url);
+    const brgy = url.searchParams.get("brgy") || undefined;
+    const date = url.searchParams.get("date") || undefined;
+
+    // Build filter
+    const where: any = {};
+    if (brgy) where.brgy_id = brgy;
+    if (date) {
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+      where.createdAt = { gte: start, lte: end };
+    }
+
     const rows = await prisma.yakap.findMany({
+      where,
       orderBy: { createdAt: "desc" },
     });
 
@@ -44,14 +60,13 @@ export async function GET() {
   }
 }
 
+
 /* ============================
    POST: Public Create Yakap
 ============================ */
 export async function POST(req: NextRequest) {
   try {
     const json = await req.json().catch(() => ({}));
-
-    // user_id is REQUIRED and MANUAL now
     const parsed = createYakapRequestSchema.parse(json);
 
     const created = await prisma.yakap.create({
@@ -74,7 +89,21 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ ok: true, yakap: core }, { status: 201 });
-  } catch (err) {
+
+  } catch (err: any) {
+    // ✅ UNIQUE CONSTRAINT
+    if (err?.code === "P2002") {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "duplicate",
+          message:
+            "This fullname is already registered in this barangay.",
+        },
+        { status: 409 },
+      );
+    }
+
     console.error("POST /api/yakap error:", err);
     return NextResponse.json(
       { ok: false, error: "internal_error" },

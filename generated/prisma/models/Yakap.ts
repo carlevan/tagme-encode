@@ -198,8 +198,6 @@ export type YakapWhereInput = {
   user_id?: Prisma.StringFilter<"Yakap"> | string
   createdAt?: Prisma.DateTimeFilter<"Yakap"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Yakap"> | Date | string
-  brgy?: Prisma.XOR<Prisma.BrgyScalarRelationFilter, Prisma.BrgyWhereInput>
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type YakapOrderByWithRelationInput = {
@@ -210,12 +208,11 @@ export type YakapOrderByWithRelationInput = {
   user_id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  brgy?: Prisma.BrgyOrderByWithRelationInput
-  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type YakapWhereUniqueInput = Prisma.AtLeast<{
   yakap_id?: string
+  fullname_brgy_id?: Prisma.YakapFullnameBrgy_idCompoundUniqueInput
   AND?: Prisma.YakapWhereInput | Prisma.YakapWhereInput[]
   OR?: Prisma.YakapWhereInput[]
   NOT?: Prisma.YakapWhereInput | Prisma.YakapWhereInput[]
@@ -225,9 +222,7 @@ export type YakapWhereUniqueInput = Prisma.AtLeast<{
   user_id?: Prisma.StringFilter<"Yakap"> | string
   createdAt?: Prisma.DateTimeFilter<"Yakap"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Yakap"> | Date | string
-  brgy?: Prisma.XOR<Prisma.BrgyScalarRelationFilter, Prisma.BrgyWhereInput>
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "yakap_id">
+}, "yakap_id" | "fullname_brgy_id">
 
 export type YakapOrderByWithAggregationInput = {
   yakap_id?: Prisma.SortOrder
@@ -259,10 +254,10 @@ export type YakapCreateInput = {
   yakap_id?: string
   fullname: string
   address?: string | null
+  brgy_id: string
+  user_id: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  brgy: Prisma.BrgyCreateNestedOneWithoutYakapsInput
-  user: Prisma.UserCreateNestedOneWithoutYakapsInput
 }
 
 export type YakapUncheckedCreateInput = {
@@ -279,10 +274,10 @@ export type YakapUpdateInput = {
   yakap_id?: Prisma.StringFieldUpdateOperationsInput | string
   fullname?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brgy_id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  brgy?: Prisma.BrgyUpdateOneRequiredWithoutYakapsNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutYakapsNestedInput
 }
 
 export type YakapUncheckedUpdateInput = {
@@ -309,6 +304,8 @@ export type YakapUpdateManyMutationInput = {
   yakap_id?: Prisma.StringFieldUpdateOperationsInput | string
   fullname?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brgy_id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -321,6 +318,11 @@ export type YakapUncheckedUpdateManyInput = {
   user_id?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type YakapFullnameBrgy_idCompoundUniqueInput = {
+  fullname: string
+  brgy_id: string
 }
 
 export type YakapCountOrderByAggregateInput = {
@@ -353,16 +355,6 @@ export type YakapMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type YakapListRelationFilter = {
-  every?: Prisma.YakapWhereInput
-  some?: Prisma.YakapWhereInput
-  none?: Prisma.YakapWhereInput
-}
-
-export type YakapOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -375,263 +367,6 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
-export type YakapCreateNestedManyWithoutBrgyInput = {
-  create?: Prisma.XOR<Prisma.YakapCreateWithoutBrgyInput, Prisma.YakapUncheckedCreateWithoutBrgyInput> | Prisma.YakapCreateWithoutBrgyInput[] | Prisma.YakapUncheckedCreateWithoutBrgyInput[]
-  connectOrCreate?: Prisma.YakapCreateOrConnectWithoutBrgyInput | Prisma.YakapCreateOrConnectWithoutBrgyInput[]
-  createMany?: Prisma.YakapCreateManyBrgyInputEnvelope
-  connect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-}
-
-export type YakapUncheckedCreateNestedManyWithoutBrgyInput = {
-  create?: Prisma.XOR<Prisma.YakapCreateWithoutBrgyInput, Prisma.YakapUncheckedCreateWithoutBrgyInput> | Prisma.YakapCreateWithoutBrgyInput[] | Prisma.YakapUncheckedCreateWithoutBrgyInput[]
-  connectOrCreate?: Prisma.YakapCreateOrConnectWithoutBrgyInput | Prisma.YakapCreateOrConnectWithoutBrgyInput[]
-  createMany?: Prisma.YakapCreateManyBrgyInputEnvelope
-  connect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-}
-
-export type YakapUpdateManyWithoutBrgyNestedInput = {
-  create?: Prisma.XOR<Prisma.YakapCreateWithoutBrgyInput, Prisma.YakapUncheckedCreateWithoutBrgyInput> | Prisma.YakapCreateWithoutBrgyInput[] | Prisma.YakapUncheckedCreateWithoutBrgyInput[]
-  connectOrCreate?: Prisma.YakapCreateOrConnectWithoutBrgyInput | Prisma.YakapCreateOrConnectWithoutBrgyInput[]
-  upsert?: Prisma.YakapUpsertWithWhereUniqueWithoutBrgyInput | Prisma.YakapUpsertWithWhereUniqueWithoutBrgyInput[]
-  createMany?: Prisma.YakapCreateManyBrgyInputEnvelope
-  set?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  disconnect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  delete?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  connect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  update?: Prisma.YakapUpdateWithWhereUniqueWithoutBrgyInput | Prisma.YakapUpdateWithWhereUniqueWithoutBrgyInput[]
-  updateMany?: Prisma.YakapUpdateManyWithWhereWithoutBrgyInput | Prisma.YakapUpdateManyWithWhereWithoutBrgyInput[]
-  deleteMany?: Prisma.YakapScalarWhereInput | Prisma.YakapScalarWhereInput[]
-}
-
-export type YakapUncheckedUpdateManyWithoutBrgyNestedInput = {
-  create?: Prisma.XOR<Prisma.YakapCreateWithoutBrgyInput, Prisma.YakapUncheckedCreateWithoutBrgyInput> | Prisma.YakapCreateWithoutBrgyInput[] | Prisma.YakapUncheckedCreateWithoutBrgyInput[]
-  connectOrCreate?: Prisma.YakapCreateOrConnectWithoutBrgyInput | Prisma.YakapCreateOrConnectWithoutBrgyInput[]
-  upsert?: Prisma.YakapUpsertWithWhereUniqueWithoutBrgyInput | Prisma.YakapUpsertWithWhereUniqueWithoutBrgyInput[]
-  createMany?: Prisma.YakapCreateManyBrgyInputEnvelope
-  set?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  disconnect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  delete?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  connect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  update?: Prisma.YakapUpdateWithWhereUniqueWithoutBrgyInput | Prisma.YakapUpdateWithWhereUniqueWithoutBrgyInput[]
-  updateMany?: Prisma.YakapUpdateManyWithWhereWithoutBrgyInput | Prisma.YakapUpdateManyWithWhereWithoutBrgyInput[]
-  deleteMany?: Prisma.YakapScalarWhereInput | Prisma.YakapScalarWhereInput[]
-}
-
-export type YakapCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.YakapCreateWithoutUserInput, Prisma.YakapUncheckedCreateWithoutUserInput> | Prisma.YakapCreateWithoutUserInput[] | Prisma.YakapUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.YakapCreateOrConnectWithoutUserInput | Prisma.YakapCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.YakapCreateManyUserInputEnvelope
-  connect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-}
-
-export type YakapUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.YakapCreateWithoutUserInput, Prisma.YakapUncheckedCreateWithoutUserInput> | Prisma.YakapCreateWithoutUserInput[] | Prisma.YakapUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.YakapCreateOrConnectWithoutUserInput | Prisma.YakapCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.YakapCreateManyUserInputEnvelope
-  connect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-}
-
-export type YakapUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.YakapCreateWithoutUserInput, Prisma.YakapUncheckedCreateWithoutUserInput> | Prisma.YakapCreateWithoutUserInput[] | Prisma.YakapUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.YakapCreateOrConnectWithoutUserInput | Prisma.YakapCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.YakapUpsertWithWhereUniqueWithoutUserInput | Prisma.YakapUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.YakapCreateManyUserInputEnvelope
-  set?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  disconnect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  delete?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  connect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  update?: Prisma.YakapUpdateWithWhereUniqueWithoutUserInput | Prisma.YakapUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.YakapUpdateManyWithWhereWithoutUserInput | Prisma.YakapUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.YakapScalarWhereInput | Prisma.YakapScalarWhereInput[]
-}
-
-export type YakapUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.YakapCreateWithoutUserInput, Prisma.YakapUncheckedCreateWithoutUserInput> | Prisma.YakapCreateWithoutUserInput[] | Prisma.YakapUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.YakapCreateOrConnectWithoutUserInput | Prisma.YakapCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.YakapUpsertWithWhereUniqueWithoutUserInput | Prisma.YakapUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.YakapCreateManyUserInputEnvelope
-  set?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  disconnect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  delete?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  connect?: Prisma.YakapWhereUniqueInput | Prisma.YakapWhereUniqueInput[]
-  update?: Prisma.YakapUpdateWithWhereUniqueWithoutUserInput | Prisma.YakapUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.YakapUpdateManyWithWhereWithoutUserInput | Prisma.YakapUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.YakapScalarWhereInput | Prisma.YakapScalarWhereInput[]
-}
-
-export type YakapCreateWithoutBrgyInput = {
-  yakap_id?: string
-  fullname: string
-  address?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutYakapsInput
-}
-
-export type YakapUncheckedCreateWithoutBrgyInput = {
-  yakap_id?: string
-  fullname: string
-  address?: string | null
-  user_id: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type YakapCreateOrConnectWithoutBrgyInput = {
-  where: Prisma.YakapWhereUniqueInput
-  create: Prisma.XOR<Prisma.YakapCreateWithoutBrgyInput, Prisma.YakapUncheckedCreateWithoutBrgyInput>
-}
-
-export type YakapCreateManyBrgyInputEnvelope = {
-  data: Prisma.YakapCreateManyBrgyInput | Prisma.YakapCreateManyBrgyInput[]
-  skipDuplicates?: boolean
-}
-
-export type YakapUpsertWithWhereUniqueWithoutBrgyInput = {
-  where: Prisma.YakapWhereUniqueInput
-  update: Prisma.XOR<Prisma.YakapUpdateWithoutBrgyInput, Prisma.YakapUncheckedUpdateWithoutBrgyInput>
-  create: Prisma.XOR<Prisma.YakapCreateWithoutBrgyInput, Prisma.YakapUncheckedCreateWithoutBrgyInput>
-}
-
-export type YakapUpdateWithWhereUniqueWithoutBrgyInput = {
-  where: Prisma.YakapWhereUniqueInput
-  data: Prisma.XOR<Prisma.YakapUpdateWithoutBrgyInput, Prisma.YakapUncheckedUpdateWithoutBrgyInput>
-}
-
-export type YakapUpdateManyWithWhereWithoutBrgyInput = {
-  where: Prisma.YakapScalarWhereInput
-  data: Prisma.XOR<Prisma.YakapUpdateManyMutationInput, Prisma.YakapUncheckedUpdateManyWithoutBrgyInput>
-}
-
-export type YakapScalarWhereInput = {
-  AND?: Prisma.YakapScalarWhereInput | Prisma.YakapScalarWhereInput[]
-  OR?: Prisma.YakapScalarWhereInput[]
-  NOT?: Prisma.YakapScalarWhereInput | Prisma.YakapScalarWhereInput[]
-  yakap_id?: Prisma.StringFilter<"Yakap"> | string
-  fullname?: Prisma.StringFilter<"Yakap"> | string
-  address?: Prisma.StringNullableFilter<"Yakap"> | string | null
-  brgy_id?: Prisma.StringFilter<"Yakap"> | string
-  user_id?: Prisma.StringFilter<"Yakap"> | string
-  createdAt?: Prisma.DateTimeFilter<"Yakap"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Yakap"> | Date | string
-}
-
-export type YakapCreateWithoutUserInput = {
-  yakap_id?: string
-  fullname: string
-  address?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  brgy: Prisma.BrgyCreateNestedOneWithoutYakapsInput
-}
-
-export type YakapUncheckedCreateWithoutUserInput = {
-  yakap_id?: string
-  fullname: string
-  address?: string | null
-  brgy_id: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type YakapCreateOrConnectWithoutUserInput = {
-  where: Prisma.YakapWhereUniqueInput
-  create: Prisma.XOR<Prisma.YakapCreateWithoutUserInput, Prisma.YakapUncheckedCreateWithoutUserInput>
-}
-
-export type YakapCreateManyUserInputEnvelope = {
-  data: Prisma.YakapCreateManyUserInput | Prisma.YakapCreateManyUserInput[]
-  skipDuplicates?: boolean
-}
-
-export type YakapUpsertWithWhereUniqueWithoutUserInput = {
-  where: Prisma.YakapWhereUniqueInput
-  update: Prisma.XOR<Prisma.YakapUpdateWithoutUserInput, Prisma.YakapUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.YakapCreateWithoutUserInput, Prisma.YakapUncheckedCreateWithoutUserInput>
-}
-
-export type YakapUpdateWithWhereUniqueWithoutUserInput = {
-  where: Prisma.YakapWhereUniqueInput
-  data: Prisma.XOR<Prisma.YakapUpdateWithoutUserInput, Prisma.YakapUncheckedUpdateWithoutUserInput>
-}
-
-export type YakapUpdateManyWithWhereWithoutUserInput = {
-  where: Prisma.YakapScalarWhereInput
-  data: Prisma.XOR<Prisma.YakapUpdateManyMutationInput, Prisma.YakapUncheckedUpdateManyWithoutUserInput>
-}
-
-export type YakapCreateManyBrgyInput = {
-  yakap_id?: string
-  fullname: string
-  address?: string | null
-  user_id: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type YakapUpdateWithoutBrgyInput = {
-  yakap_id?: Prisma.StringFieldUpdateOperationsInput | string
-  fullname?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutYakapsNestedInput
-}
-
-export type YakapUncheckedUpdateWithoutBrgyInput = {
-  yakap_id?: Prisma.StringFieldUpdateOperationsInput | string
-  fullname?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  user_id?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type YakapUncheckedUpdateManyWithoutBrgyInput = {
-  yakap_id?: Prisma.StringFieldUpdateOperationsInput | string
-  fullname?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  user_id?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type YakapCreateManyUserInput = {
-  yakap_id?: string
-  fullname: string
-  address?: string | null
-  brgy_id: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type YakapUpdateWithoutUserInput = {
-  yakap_id?: Prisma.StringFieldUpdateOperationsInput | string
-  fullname?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  brgy?: Prisma.BrgyUpdateOneRequiredWithoutYakapsNestedInput
-}
-
-export type YakapUncheckedUpdateWithoutUserInput = {
-  yakap_id?: Prisma.StringFieldUpdateOperationsInput | string
-  fullname?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brgy_id?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type YakapUncheckedUpdateManyWithoutUserInput = {
-  yakap_id?: Prisma.StringFieldUpdateOperationsInput | string
-  fullname?: Prisma.StringFieldUpdateOperationsInput | string
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brgy_id?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
 
 
 export type YakapSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -642,8 +377,6 @@ export type YakapSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   user_id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  brgy?: boolean | Prisma.BrgyDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["yakap"]>
 
 export type YakapSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -654,8 +387,6 @@ export type YakapSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   user_id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  brgy?: boolean | Prisma.BrgyDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["yakap"]>
 
 export type YakapSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -666,8 +397,6 @@ export type YakapSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   user_id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  brgy?: boolean | Prisma.BrgyDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["yakap"]>
 
 export type YakapSelectScalar = {
@@ -681,25 +410,10 @@ export type YakapSelectScalar = {
 }
 
 export type YakapOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"yakap_id" | "fullname" | "address" | "brgy_id" | "user_id" | "createdAt" | "updatedAt", ExtArgs["result"]["yakap"]>
-export type YakapInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brgy?: boolean | Prisma.BrgyDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-}
-export type YakapIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brgy?: boolean | Prisma.BrgyDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-}
-export type YakapIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  brgy?: boolean | Prisma.BrgyDefaultArgs<ExtArgs>
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-}
 
 export type $YakapPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Yakap"
-  objects: {
-    brgy: Prisma.$BrgyPayload<ExtArgs>
-    user: Prisma.$UserPayload<ExtArgs>
-  }
+  objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     yakap_id: string
     fullname: string
@@ -1102,8 +816,6 @@ readonly fields: YakapFieldRefs;
  */
 export interface Prisma__YakapClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  brgy<T extends Prisma.BrgyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BrgyDefaultArgs<ExtArgs>>): Prisma.Prisma__BrgyClient<runtime.Types.Result.GetResult<Prisma.$BrgyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1157,10 +869,6 @@ export type YakapFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.YakapOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapInclude<ExtArgs> | null
-  /**
    * Filter, which Yakap to fetch.
    */
   where: Prisma.YakapWhereUniqueInput
@@ -1179,10 +887,6 @@ export type YakapFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.YakapOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapInclude<ExtArgs> | null
-  /**
    * Filter, which Yakap to fetch.
    */
   where: Prisma.YakapWhereUniqueInput
@@ -1200,10 +904,6 @@ export type YakapFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Yakap
    */
   omit?: Prisma.YakapOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapInclude<ExtArgs> | null
   /**
    * Filter, which Yakap to fetch.
    */
@@ -1253,10 +953,6 @@ export type YakapFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.YakapOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapInclude<ExtArgs> | null
-  /**
    * Filter, which Yakap to fetch.
    */
   where?: Prisma.YakapWhereInput
@@ -1305,10 +1001,6 @@ export type YakapFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   omit?: Prisma.YakapOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapInclude<ExtArgs> | null
-  /**
    * Filter, which Yakaps to fetch.
    */
   where?: Prisma.YakapWhereInput
@@ -1352,10 +1044,6 @@ export type YakapCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   omit?: Prisma.YakapOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapInclude<ExtArgs> | null
-  /**
    * The data needed to create a Yakap.
    */
   data: Prisma.XOR<Prisma.YakapCreateInput, Prisma.YakapUncheckedCreateInput>
@@ -1389,10 +1077,6 @@ export type YakapCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extension
    */
   data: Prisma.YakapCreateManyInput | Prisma.YakapCreateManyInput[]
   skipDuplicates?: boolean
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1407,10 +1091,6 @@ export type YakapUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    * Omit specific fields from the Yakap
    */
   omit?: Prisma.YakapOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapInclude<ExtArgs> | null
   /**
    * The data needed to update a Yakap.
    */
@@ -1463,10 +1143,6 @@ export type YakapUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extension
    * Limit how many Yakaps to update.
    */
   limit?: number
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1481,10 +1157,6 @@ export type YakapUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    * Omit specific fields from the Yakap
    */
   omit?: Prisma.YakapOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapInclude<ExtArgs> | null
   /**
    * The filter to search for the Yakap to update in case it exists.
    */
@@ -1511,10 +1183,6 @@ export type YakapDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    * Omit specific fields from the Yakap
    */
   omit?: Prisma.YakapOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapInclude<ExtArgs> | null
   /**
    * Filter which Yakap to delete.
    */
@@ -1547,8 +1215,4 @@ export type YakapDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the Yakap
    */
   omit?: Prisma.YakapOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.YakapInclude<ExtArgs> | null
 }

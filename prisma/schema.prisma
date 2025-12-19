@@ -24,6 +24,7 @@ model Yakap {
 
   // brgy Brgy @relation(fields: [brgy_id], references: [brgy_id])
   // user User @relation(fields: [user_id], references: [user_id])
+  @@unique([fullname, brgy_id])
 
   @@index([fullname])
   @@index([brgy_id])

@@ -25,7 +25,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
 
 /* -----------------------------
-   STATIC BARANGAY LIST (ORDERED)
+   STATIC BARANGAY LIST
 -------------------------------- */
 const BRGIES = [
   "BARANGAY 1",
@@ -63,64 +63,29 @@ const BRGIES = [
   "TALAO-TALAO",
 ];
 
-/* -----------------------------
-   DATE HELPER (TODAY ONLY)
--------------------------------- */
-function isToday(dateString: string) {
-  const d = new Date(dateString);
-  const now = new Date();
-
-  return (
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate()
-  );
-}
-
-type BrgyCountRow = {
-  brgy: string;
-  total: number;
-};
-
-type UserCountRow = {
-  user: string;
-  total: number;
-};
+type BrgyCountRow = { brgy: string; total: number };
+type UserCountRow = { user: string; total: number };
+type DateCountRow = { date: string; total: number };
 
 const YakapDashboard: React.FC = () => {
   const [yakaps, setYakaps] = useState<YakapRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedBrgy, setSelectedBrgy] = useState<string>("");
+  const [selectedBrgy, setSelectedBrgy] = useState("");
 
   /* -----------------------------
      LOAD DATA
   -------------------------------- */
   useEffect(() => {
-    loadData();
+    getYakaps().then(setYakaps).catch(console.error);
   }, []);
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const data = await getYakaps();
-      setYakaps(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   /* -----------------------------
-     BUILD BRGY COUNTS (FIXED ORDER)
+     BARANGAY COUNTS (ALL)
   -------------------------------- */
   const brgyCounts = useMemo<BrgyCountRow[]>(() => {
-    const counts = yakaps
-      .filter((y) => isToday(y.createdAt))
-      .reduce<Record<string, number>>((acc, y) => {
-        acc[y.brgy_id] = (acc[y.brgy_id] ?? 0) + 1;
-        return acc;
-      }, {});
+    const counts = yakaps.reduce<Record<string, number>>((acc, y) => {
+      acc[y.brgy_id] = (acc[y.brgy_id] ?? 0) + 1;
+      return acc;
+    }, {});
 
     let rows = BRGIES.map((brgy) => ({
       brgy,
@@ -135,103 +100,100 @@ const YakapDashboard: React.FC = () => {
   }, [yakaps, selectedBrgy]);
 
   /* -----------------------------
-     BUILD USER COUNTS
+     USER COUNTS (ALL)
   -------------------------------- */
   const userCounts = useMemo<UserCountRow[]>(() => {
-    const counts = yakaps
-      .filter((y) => isToday(y.createdAt))
-      .reduce<Record<string, number>>((acc, y) => {
-        acc[y.user_id] = (acc[y.user_id] ?? 0) + 1;
-        return acc;
-      }, {});
+    const counts = yakaps.reduce<Record<string, number>>((acc, y) => {
+      acc[y.user_id] = (acc[y.user_id] ?? 0) + 1;
+      return acc;
+    }, {});
 
-    return Object.entries(counts).map(([user, total]) => ({ user, total }));
+    return Object.entries(counts)
+      .map(([user, total]) => ({ user, total }))
+      .sort((a, b) => b.total - a.total);
+  }, [yakaps]);
+
+  /* -----------------------------
+     DATE COUNTS (ALL)
+  -------------------------------- */
+  const dateCounts = useMemo<DateCountRow[]>(() => {
+    const counts = yakaps.reduce<Record<string, number>>((acc, y) => {
+      const date = new Date(y.createdAt).toISOString().slice(0, 10);
+      acc[date] = (acc[date] ?? 0) + 1;
+      return acc;
+    }, {});
+
+    return Object.entries(counts)
+      .map(([date, total]) => ({ date, total }))
+      .sort((a, b) => b.date.localeCompare(a.date));
   }, [yakaps]);
 
   /* -----------------------------
      OVERALL TOTAL
   -------------------------------- */
-  const overallTotal = useMemo(() => {
-    return brgyCounts.reduce((sum, r) => sum + r.total, 0);
-  }, [brgyCounts]);
+  const overallTotal = yakaps.length;
 
   /* -----------------------------
-     CSV EXPORT (BRGY ONLY)
+     CSV EXPORT (BARANGAY)
   -------------------------------- */
   const exportCSV = () => {
-    const header = ["Barangay", "Total"];
-    const rows = brgyCounts.map((r) => [r.brgy, r.total.toString()]);
-
-    const csv = [header, ...rows]
-      .map((row) => row.join(","))
+    const csv = [
+      ["Barangay", "Total"],
+      ...brgyCounts.map((r) => [r.brgy, r.total.toString()]),
+    ]
+      .map((r) => r.join(","))
       .join("\n");
 
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `yakap-dashboard-${new Date()
-      .toISOString()
-      .slice(0, 10)}.csv`;
-    link.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "barangay-overall.csv";
+    a.click();
 
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="min-h-screen bg-background px-4 py-6">
+    <div className="min-h-screen px-4 py-6">
       <div className="container mx-auto space-y-6">
-        <header>
-          <h1 className="text-3xl font-semibold">Yakap Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            Today&apos;s summary
-          </p>
-        </header>
+        <h1 className="text-3xl font-semibold">Yakap Dashboard</h1>
 
-        {/* OVERALL TOTAL */}
+        {/* OVERALL */}
         <Card>
           <CardHeader>
-            <CardTitle>Overall Total (Today)</CardTitle>
-            <CardDescription>
-              Total Yakap entries across all barangays
-            </CardDescription>
+            <CardTitle>Overall Total</CardTitle>
+            <CardDescription>All Yakap records</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-4xl font-bold">{overallTotal}</p>
           </CardContent>
         </Card>
 
-        {/* BRGY TABLE */}
+        {/* BARANGAY */}
         <Card>
           <CardHeader>
-            <CardTitle>Barangay Breakdown</CardTitle>
-            <CardDescription>Ordered from Barangay 1 to Talao-Talao</CardDescription>
+            <CardTitle>Barangay Breakdown (Overall)</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex flex-col md:flex-row gap-4 items-end">
-              <div className="w-full md:w-1/3">
-                <Label>Filter by Barangay</Label>
-                <select
-                  value={selectedBrgy}
-                  onChange={(e) => setSelectedBrgy(e.target.value)}
-                  className="w-full rounded-md border px-3 py-2 text-sm"
-                >
-                  <option value="">All barangays</option>
-                  {BRGIES.map((b) => (
-                    <option key={b} value={b}>
-                      {b}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <Label>Filter Barangay</Label>
+            <select
+              className="border rounded-md px-3 py-2 w-full md:w-1/3"
+              value={selectedBrgy}
+              onChange={(e) => setSelectedBrgy(e.target.value)}
+            >
+              <option value="">All</option>
+              {BRGIES.map((b) => (
+                <option key={b}>{b}</option>
+              ))}
+            </select>
 
-              <Button onClick={exportCSV} variant="outline">
-                Export CSV
-              </Button>
-            </div>
+            <Button variant="outline" onClick={exportCSV}>
+              Export CSV
+            </Button>
 
-            <ScrollArea className="h-105 border rounded-md">
+            <ScrollArea className="h-80 border rounded-md">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -243,7 +205,9 @@ const YakapDashboard: React.FC = () => {
                   {brgyCounts.map((r) => (
                     <TableRow key={r.brgy}>
                       <TableCell>{r.brgy}</TableCell>
-                      <TableCell className="text-right font-medium">{r.total}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        {r.total}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -252,13 +216,39 @@ const YakapDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* USER TABLE (NOT EXPORTED) */}
+        {/* DATE */}
         <Card>
           <CardHeader>
-            <CardTitle>User Breakdown</CardTitle>
-            <CardDescription>
-              Counts of entries per user (not included in CSV)
-            </CardDescription>
+            <CardTitle>Date Breakdown (Overall)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-80 border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {dateCounts.map((d) => (
+                    <TableRow key={d.date}>
+                      <TableCell>{d.date}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        {d.total}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        {/* USER */}
+        <Card>
+          <CardHeader>
+            <CardTitle>User Breakdown (Overall)</CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-80 border rounded-md">
@@ -273,7 +263,9 @@ const YakapDashboard: React.FC = () => {
                   {userCounts.map((u) => (
                     <TableRow key={u.user}>
                       <TableCell>{u.user}</TableCell>
-                      <TableCell className="text-right font-medium">{u.total}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        {u.total}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

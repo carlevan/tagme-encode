@@ -24,6 +24,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { set } from "zod";
 
 /* -----------------------------
    STATIC BARANGAY LIST
@@ -144,6 +145,11 @@ const YakapEncode: React.FC = () => {
       value = value.toUpperCase();
     }
 
+    // Replace "?" with "Ñ" for fullname
+    if (field === "fullname") {
+      value = value.replace(/\?/g, "Ñ");
+    }
+
     setForm((prev) => ({ ...prev, [field]: value }));
   };
   /* -----------------------------
@@ -176,11 +182,15 @@ const YakapEncode: React.FC = () => {
 
       await reloadYakaps();
     } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Failed to save Yakap");
-    } finally {
+        // console.error(err);
+        setError(err.message)
+        // if (err?.status === 409 || err?.message?.includes("duplicate")) {
+        //   setError("This person is already registered in the selected barangay.");
+        // } else {
+        //   setError("Failed to save Yakap");
+        // }
+      }
       setLoading(false);
-    }
   };
 
   return (
