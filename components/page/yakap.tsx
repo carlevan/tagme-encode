@@ -2,14 +2,13 @@
 
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { createYakap, getYakaps } from "@/lib/yakapClient";
+import { createYakap, getYakaps, updateYakap } from "@/lib/yakapClient";
 import type { YakapRow, CreateYakapRequest } from "@/lib/yakapSchemas";
 
 import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,54 +23,32 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { set } from "zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 /* -----------------------------
    STATIC BARANGAY LIST
 -------------------------------- */
 const BRGIES = [
-  "BARANGAY 1",
-  "BARANGAY 2",
-  "BARANGAY 3",
-  "BARANGAY 4",
-  "BARANGAY 5",
-  "BARANGAY 6",
-  "BARANGAY 7",
-  "BARANGAY 8",
-  "BARANGAY 9",
-  "BARANGAY 10",
-  "BARANGAY 11",
-  "BARRA",
-  "BOCOHAN",
-  "COTTA",
-  "DALAHICAN",
-  "DOMOIT",
-  "GULANG-GULANG",
-  "IBABANG DUPAY",
-  "IBABANG IYAM",
-  "IBABANG TALIM",
-  "ILAYANG DUPAY",
-  "ILAYANG IYAM",
-  "ILAYANG TALIM",
-  "ISABANG",
-  "MARKETVIEW",
-  "MAYAO CROSSING",
-  "MAYAO CASTILLO",
-  "MAYAO KANLURAN",
-  "MAYAO PARADA",
-  "MAYAO SILANGAN",
-  "RANSOHAN",
-  "SALINAS",
-  "TALAO-TALAO",
+  "BARANGAY 1","BARANGAY 2","BARANGAY 3","BARANGAY 4","BARANGAY 5",
+  "BARANGAY 6","BARANGAY 7","BARANGAY 8","BARANGAY 9","BARANGAY 10",
+  "BARANGAY 11","BARRA","BOCOHAN","COTTA","DALAHICAN","DOMOIT",
+  "GULANG-GULANG","IBABANG DUPAY","IBABANG IYAM","IBABANG TALIM",
+  "ILAYANG DUPAY","ILAYANG IYAM","ILAYANG TALIM","ISABANG",
+  "MARKETVIEW","MAYAO CROSSING","MAYAO CASTILLO","MAYAO KANLURAN",
+  "MAYAO PARADA","MAYAO SILANGAN","RANSOHAN","SALINAS","TALAO-TALAO",
 ];
 
 /* -----------------------------
-   DATE HELPER (TODAY ONLY)
+   DATE HELPER
 -------------------------------- */
 function isToday(dateString: string) {
   const d = new Date(dateString);
   const now = new Date();
-
   return (
     d.getFullYear() === now.getFullYear() &&
     d.getMonth() === now.getMonth() &&
@@ -89,195 +66,153 @@ const YakapEncode: React.FC = () => {
 
   const [yakaps, setYakaps] = useState<YakapRow[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingTable, setLoadingTable] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   /* -----------------------------
-     LOAD ALL DATA ONCE
+     EDIT MODAL STATE
+  -------------------------------- */
+  const [editing, setEditing] = useState<YakapRow | null>(null);
+  const [editFullname, setEditFullname] = useState("");
+  const [editBrgy, setEditBrgy] = useState("");
+
+  /* -----------------------------
+     LOAD DATA
   -------------------------------- */
   useEffect(() => {
     reloadYakaps();
   }, []);
 
   const reloadYakaps = async () => {
-    setLoadingTable(true);
     try {
       const data = await getYakaps();
       setYakaps(data);
     } catch (err) {
       console.error(err);
-    } finally {
-      setLoadingTable(false);
     }
   };
 
   /* -----------------------------
-     FILTERED + SORTED VIEW
+     FILTER BY TODAY + USER
   -------------------------------- */
   const filteredYakaps = React.useMemo(() => {
     if (!form.user_id) return [];
-
     return yakaps
-      .filter(
-        (y) =>
-          y.user_id === form.user_id &&
-          isToday(y.createdAt),
-      )
+      .filter((y) => y.user_id === form.user_id && isToday(y.createdAt))
       .sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() -
-          new Date(a.createdAt).getTime(),
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
   }, [yakaps, form.user_id]);
 
-  const handleChange =
-  (field: keyof CreateYakapRequest) =>
-  (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    let value = e.target.value;
-
-    // Automatically uppercase fullname and user_id
-    if (field === "fullname" || field === "user_id") {
-      value = value.toUpperCase();
-    }
-
-    // Replace "?" with "Ñ" for fullname
-    if (field === "fullname") {
-      value = value.replace(/\?/g, "Ñ");
-    }
-
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
   /* -----------------------------
-     SUBMIT
+     FORM CHANGE
+  -------------------------------- */
+  const handleChange =
+    (field: keyof CreateYakapRequest) =>
+    (e: React.ChangeEvent<any>) => {
+      let value = e.target.value;
+      if (field === "fullname" || field === "user_id") {
+        value = value.toUpperCase();
+      }
+      setForm((p) => ({ ...p, [field]: value }));
+    };
+
+  /* -----------------------------
+     CREATE NEW
   -------------------------------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
+    if (!form.fullname || !form.brgy_id || !form.user_id) return;
+
+    setLoading(true);
+    try {
+      await createYakap(form);
+      setForm((p) => ({ ...p, fullname: "" }));
+      await reloadYakaps();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* -----------------------------
+     OPEN EDIT MODAL
+     (Pass the full Yakap object including yakap_id)
+  -------------------------------- */
+  const openEdit = (y: YakapRow) => {
+    setEditing(y);
+    setEditFullname(y.fullname);
+    setEditBrgy(y.brgy_id);
+  };
+
+  /* -----------------------------
+     SAVE EDIT
+     (Use yakap_id from editing object)
+  -------------------------------- */
+  const saveEdit = async () => {
+    if (!editing?.yakap_id) return;
 
     try {
-      setLoading(true);
-
-      await createYakap({
-        fullname: form.fullname,
-        address: form.address || undefined,
-        brgy_id: form.brgy_id,
-        user_id: form.user_id,
+      await updateYakap(editing.yakap_id, {
+        fullname: editFullname,
+        brgy_id: editBrgy,
       });
-
-      setSuccess("Yakap saved");
-
-      // Clear all EXCEPT user_id
-      setForm((prev) => ({
-        fullname: "",
-        address: "",
-        brgy_id: prev.brgy_id,
-        user_id: prev.user_id,
-      }));
-
+      setEditing(null);
       await reloadYakaps();
-    } catch (err: any) {
-        // console.error(err);
-        setError(err.message)
-        // if (err?.status === 409 || err?.message?.includes("duplicate")) {
-        //   setError("This person is already registered in the selected barangay.");
-        // } else {
-        //   setError("Failed to save Yakap");
-        // }
-      }
-      setLoading(false);
+    } catch (err) {
+      console.error("Failed to update Yakap:", err);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background px-4 py-6">
+    <div className="min-h-screen px-4 py-6">
       <div className="container mx-auto space-y-6">
-        <header>
-          <h1 className="text-3xl font-semibold">Yakap Registry</h1>
-          <p className="text-sm text-muted-foreground">
-            Manual encoding • Today only • Per user
-          </p>
-        </header>
+        <h1 className="text-3xl font-semibold">Yakap Registry</h1>
 
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex gap-6">
           {/* FORM */}
-          <Card className="w-full md:w-2/5">
+          <Card className="w-1/3">
             <CardHeader>
               <CardTitle>New Yakap</CardTitle>
-              <CardDescription>Encode a new Yakap record</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label>Fullname</Label>
-                  <Input
-                    value={form.fullname}
-                    onChange={handleChange("fullname")}
-                  />
-                </div>
+                <Input
+                  placeholder="Fullname"
+                  value={form.fullname}
+                  onChange={handleChange("fullname")}
+                />
 
-                {/* <div>
-                  <Label>Address</Label>
-                  <textarea
-                    value={form.address ?? ""}
-                    onChange={handleChange("address")}
-                    className="w-full rounded-md border px-3 py-2 text-sm"
-                  />
-                </div> */}
-
-                <div>
-                  <Label>Barangay</Label>
-                  <select
-                    value={form.brgy_id}
-                    onChange={handleChange("brgy_id")}
-                    className="w-full rounded-md border px-3 py-2 text-sm"
-                  >
-                    <option value="">Select barangay…</option>
-                    {BRGIES.map((b) => (
-                      <option key={b} value={b}>
-                        {b}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* USER FIELD */}
-                <div>
-                  <Label>User</Label>
-                  <Input
-                    placeholder="Encoder / User ID"
-                    value={form.user_id}
-                    onChange={handleChange("user_id")}
-                  />
-                </div>
-
-                {error && <p className="text-sm text-red-500">{error}</p>}
-                {success && (
-                  <p className="text-sm text-emerald-500">{success}</p>
-                )}
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={loading}
+                <select
+                  value={form.brgy_id}
+                  onChange={handleChange("brgy_id")}
+                  className="w-full border rounded-md px-3 py-2"
                 >
-                  {loading ? "Saving..." : "Save Yakap"}
+                  <option value="">Select barangay</option>
+                  {BRGIES.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
+                </select>
+
+                <Input
+                  placeholder="User"
+                  value={form.user_id}
+                  onChange={handleChange("user_id")}
+                />
+
+                <Button className="w-full" disabled={loading}>
+                  Save
                 </Button>
               </form>
             </CardContent>
           </Card>
 
           {/* TABLE */}
-          <Card className="w-full md:flex-1">
+          <Card className="flex-1">
             <CardHeader>
-              <CardTitle>Yakap List</CardTitle>
-              <CardDescription>
-                Today&apos;s records for selected user
-              </CardDescription>
+              <CardTitle>Today's Records</CardTitle>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-105 border rounded-md">
@@ -285,35 +220,32 @@ const YakapEncode: React.FC = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Fullname</TableHead>
-                      {/* <TableHead>Address</TableHead> */}
                       <TableHead>Barangay</TableHead>
                       <TableHead>User</TableHead>
-                      <TableHead>Created At</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead>Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredYakaps.length === 0 && !loadingTable ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={5}
-                          className="text-center text-muted-foreground"
-                        >
-                          No data
+                    {filteredYakaps.map((y) => (
+                      <TableRow key={y.yakap_id}>
+                        <TableCell>{y.fullname}</TableCell>
+                        <TableCell>{y.brgy_id}</TableCell>
+                        <TableCell>{y.user_id}</TableCell>
+                        <TableCell>
+                          {new Date(y.createdAt).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openEdit(y)}
+                          >
+                            Edit
+                          </Button>
                         </TableCell>
                       </TableRow>
-                    ) : (
-                      filteredYakaps.map((y) => (
-                        <TableRow key={y.yakap_id}>
-                          <TableCell>{y.fullname}</TableCell>
-                          {/* <TableCell>{y.address ?? "-"}</TableCell> */}
-                          <TableCell>{y.brgy_id}</TableCell>
-                          <TableCell>{y.user_id}</TableCell>
-                          <TableCell>
-                            {new Date(y.createdAt).toLocaleString()}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
+                    ))}
                   </TableBody>
                 </Table>
               </ScrollArea>
@@ -321,6 +253,46 @@ const YakapEncode: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* EDIT MODAL */}
+      <Dialog open={!!editing} onOpenChange={() => setEditing(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Yakap</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label>Fullname</Label>
+              <Input
+                value={editFullname}
+                onChange={(e) =>
+                  setEditFullname(e.target.value.toUpperCase())
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Barangay</Label>
+              <select
+                value={editBrgy}
+                onChange={(e) => setEditBrgy(e.target.value)}
+                className="w-full border rounded-md px-3 py-2"
+              >
+                {BRGIES.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <Button onClick={saveEdit} className="w-full">
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

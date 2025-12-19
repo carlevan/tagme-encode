@@ -161,3 +161,28 @@ export async function registerUser(input: RegisterRequest): Promise<UserPublic> 
   const user = userPublicSchema.parse(json.user);
   return user;
 }
+
+export async function updateYakap(
+  yakap_id: string,
+  data: {
+    fullname?: string;
+    brgy_id?: string;
+  }
+) {
+  const res = await fetch(`/api/yakap/${yakap_id}`, {
+    method: "PUT", // ✅ MUST BE PUT
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    console.error("UPDATE ERROR RESPONSE:", json);
+    throw new Error(json.message || "Failed to update");
+  }
+
+  return json;
+}
