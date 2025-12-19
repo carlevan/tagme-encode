@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function PUT(req: NextRequest, context: { params: { yakap_id: string } }) {
+export async function PUT(req: NextRequest, context: { params: Promise<{ yakap_id: string }> }) {
   // Unwrap params correctly
   const { yakap_id } = await context.params; // <--- must await
 
