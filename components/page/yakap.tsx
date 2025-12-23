@@ -113,6 +113,10 @@ const YakapEncode: React.FC = () => {
       if (field === "fullname" || field === "user_id") {
         value = value.toUpperCase();
       }
+      // Replace "?" with "Ñ" for fullname
+      if (field === "fullname") {
+        value = value.replace(/\?/g, "Ñ");
+      }
       setForm((p) => ({ ...p, [field]: value }));
     };
 

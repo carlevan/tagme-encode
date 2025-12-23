@@ -10,6 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 const BRGIES = [
   "BARANGAY 1","BARANGAY 2","BARANGAY 3","BARANGAY 4","BARANGAY 5",
   "BARANGAY 6","BARANGAY 7","BARANGAY 8","BARANGAY 9","BARANGAY 10",
@@ -53,12 +56,19 @@ const Reports: React.FC = () => {
   const [yakaps, setYakaps] = useState<YakapRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [brgyFilter, setBrgyFilter] = useState<string>("ALL");
-  const [dateFilter, setDateFilter] = useState<string>(() => {
-    const today = new Date();
-    return today.toISOString().split("T")[0]; // YYYY-MM-DD
-  });
+  const [dateFilter, setDateFilter] = useState<string>(""); // initialize empty
+  const [hydrated, setHydrated] = useState(false);
 
-  // Load data
+  // -------------------------
+  // Client-side hydration effect
+  // -------------------------
+  useEffect(() => {
+    setHydrated(true);
+    const today = new Date();
+    setDateFilter(today.toISOString().split("T")[0]);
+  }, []);
+
+  // Load filtered data
   const loadYakaps = async () => {
     setLoading(true);
     try {
@@ -76,35 +86,66 @@ const Reports: React.FC = () => {
   };
 
   useEffect(() => {
-    loadYakaps();
-  }, [brgyFilter, dateFilter]);
+    if (hydrated) loadYakaps();
+  }, [brgyFilter, dateFilter, hydrated]);
 
-  // Export CSV
+  // -------------------------
+  // Export filtered CSV (TSV)
+  // -------------------------
   const exportCSV = () => {
-  if (yakaps.length === 0) return;
+    if (yakaps.length === 0) return;
 
-  const header = ["No", "Fullname", "Barangay", "Created At"];
-  const rows = yakaps.map((y, index) => [
-    index + 1,
-    y.fullname,
-    y.brgy_id,
-    new Date(y.createdAt).toLocaleString(),
-  ]);
+    const header = ["No", "Fullname", "Barangay", "Created At"];
+    const rows = yakaps.map((y, index) => [
+      index + 1,
+      y.fullname,
+      y.brgy_id,
+      new Date(y.createdAt).toLocaleString(),
+    ]);
 
-  // Use tab as delimiter
-  const csvContent =
-    [header, ...rows].map((r) => r.join("\t")).join("\n");
+    const csvContent = [header, ...rows].map((r) => r.join("\t")).join("\n");
 
-  const blob = new Blob([csvContent], { type: "text/tab-separated-values;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", `yakap_report_${dateFilter}.tsv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+    const blob = new Blob([csvContent], { type: "text/tab-separated-values;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `yakap_report_${dateFilter}.tsv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
+  // -------------------------
+  // Export ALL Yakaps to XLSX
+  // -------------------------
+  const exportXLSXAll = async () => {
+    try {
+      const allYakaps: YakapRow[] = await getYakaps(); // No filters
+      if (allYakaps.length === 0) return;
+
+      const wsData = [
+        ["No", "Fullname", "Barangay", "Created At"],
+        ...allYakaps.map((y, index) => [
+          index + 1,
+          y.fullname,
+          y.brgy_id,
+          new Date(y.createdAt).toLocaleString(),
+        ]),
+      ];
+
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Yakaps");
+
+      const buf = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+      const blob = new Blob([buf], { type: "application/octet-stream" });
+      saveAs(blob, `yakap_report_all.xlsx`);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  if (!hydrated) return null; // prevent SSR mismatch
 
   return (
     <div className="min-h-screen bg-background px-4 py-6">
@@ -155,6 +196,10 @@ const Reports: React.FC = () => {
 
             <Button onClick={exportCSV} className="mt-2 md:mt-0">
               Export CSV
+            </Button>
+
+            <Button onClick={exportXLSXAll} className="mt-2 md:mt-0">
+              Export All XLSX
             </Button>
           </CardContent>
         </Card>
